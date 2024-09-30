@@ -15,7 +15,7 @@ main {
   align-items: stretch;
 }
 
-button {
+/* button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -33,9 +33,9 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
+} */
 
-ul {
+/* ul {
   padding-inline-start: 0;
   margin-block-start: 0;
   margin-block-end: 0;
@@ -48,9 +48,9 @@ ul {
   background-color: black;
   border-radius: 8px;
   overflow: auto;
-}
+} */
 
-li {
+/* li {
   background-color: white;
   padding: 8px;
 }
@@ -62,4 +62,13 @@ li:hover {
 a {
   font-weight: 800;
   text-decoration: none;
+} */
+
+.row {
+  margin-top: 5px;
+}
+
+.btn {
+ /* add a shadow to the button*/
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
 }
