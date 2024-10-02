@@ -13,6 +13,8 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Title from "./Title";
+import CreateTodo from "./CreateTodo";
 
 const client = generateClient<Schema>();
 
@@ -28,6 +30,7 @@ function App() {
     fetchUserAttributes().then((data) => {
       setUserAttributes(data);
     });
+    
   }, []);
 
   function createTodo() {
@@ -51,16 +54,7 @@ function App() {
     client.models.Todo.delete({ id });
   }
 
-  // async function updateTodo(e: React.FormEvent<HTMLFormElement>) {
-  //   const todo = {
-  //     id: e.target.id,
-  //     isDone: e.target.checked
-  //   };
-  //   client.models.Todo.update(todo);
-  // }
-
     async function updateTodo(e: React.ChangeEvent<HTMLInputElement>) {
-    // const target = e.target as HTMLInputElement;
     const todo = {
       id: e.target.id,
       isDone: e.target.checked
@@ -72,50 +66,39 @@ function App() {
     <Authenticator>
       {({ signOut }) => (
           <main>
-            <Container>
-            <form onSubmit={handleSubmit}>
-              <Row>
-                <Col md={12}>
-                  <h1>{userAttributes?.preferred_username}'s todos</h1>
-                </Col>
-              </Row>
-              <Row>
-                <Col md={6}>
-                  <Form.Control type="text" value={newTodo} onChange={validateTodo} placeholder="Enter todo" />
-                </Col>
-                <Col md={{ span: 2, offset: 4 }}>
-                  <Button variant="primary" onClick={createTodo}>Create</Button>{' '}
-                </Col>
-              </Row>
-              </form>
-              <br />
-              {todos.map((todo) => (
-                <Row key={todo.id} >
-                  <Col md={7}>{todo.content}</Col>
-                  <Col md={1}>
-                  <Form.Check // prettier-ignore
-                    type={'checkbox'}
-                    id={`${todo.id}`}
-                    label={`Done`}
-                    defaultChecked={todo.isDone? true: false}
-                    onChange={updateTodo}
-                  />
-                  </Col>
-                  <Col md={{ span: 2, offset: 2 }}>
-                    <Button variant="danger" onClick={() => deleteTodo(todo.id)}>Delete</Button>{' '}
-                  </Col>
-                </Row>
-              ))}
-            </Container>
+              <Container>
+              <Form onSubmit={handleSubmit}>
+                <Title username={userAttributes?.preferred_username} />
+                <CreateTodo newTodo={newTodo} validateTodo={validateTodo} createTodo={createTodo} />
+              </Form>
+                <br />
+                {todos.map((todo) => (
+                  <Row key={todo.id} >
+                    <Col md={7}>{todo.content}</Col>
+                    <Col md={1}>
+                    <Form.Check // prettier-ignore
+                      type={'checkbox'}
+                      id={`${todo.id}`}
+                      label={`Done`}
+                      defaultChecked={todo.isDone? true: false}
+                      onChange={updateTodo}
+                    />
+                    </Col>
+                    <Col md={{ span: 2, offset: 2 }}>
+                      <Button variant="danger" onClick={() => deleteTodo(todo.id)}>Delete</Button>{' '}
+                    </Col>
+                  </Row>
+                ))}
+              </Container>
 
 
-            <div>
-              <br />
-              🥳 Welcome {userAttributes?.preferred_username}! Try creating a new todo.
-              <br />
-              <br />
-            </div>
-            <Button onClick={signOut}>Sign out</Button>
+              <div>
+                <br />
+                🥳 Welcome {userAttributes?.preferred_username}! Try creating a new todsdfsdfo.
+                <br />
+                <br />
+              </div>
+              <Button onClick={signOut}>Sign out</Button>
           </main>
 
       )}
