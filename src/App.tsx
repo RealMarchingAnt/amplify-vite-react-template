@@ -25,7 +25,9 @@ function App() {
     client.models.Todo.observeQuery().subscribe({
       next: (data: any) => setTodos([...data.items]),
     });
-    fetchUserAttributes().then((data) => setUserAttributes(data));
+    fetchUserAttributes().then((data) => {
+      setUserAttributes(data);
+    });
   }, []);
 
   function createTodo() {
@@ -49,7 +51,16 @@ function App() {
     client.models.Todo.delete({ id });
   }
 
-  async function updateTodo(e: React.FormEvent<HTMLFormElement>) {
+  // async function updateTodo(e: React.FormEvent<HTMLFormElement>) {
+  //   const todo = {
+  //     id: e.target.id,
+  //     isDone: e.target.checked
+  //   };
+  //   client.models.Todo.update(todo);
+  // }
+
+    async function updateTodo(e: React.ChangeEvent<HTMLInputElement>) {
+    // const target = e.target as HTMLInputElement;
     const todo = {
       id: e.target.id,
       isDone: e.target.checked
@@ -59,7 +70,7 @@ function App() {
 
   return (
     <Authenticator>
-      {({ signOut, user }) => (
+      {({ signOut }) => (
           <main>
             <Container>
             <form onSubmit={handleSubmit}>
@@ -86,7 +97,7 @@ function App() {
                     type={'checkbox'}
                     id={`${todo.id}`}
                     label={`Done`}
-                    defaultChecked={todo.isDone}
+                    defaultChecked={todo.isDone? true: false}
                     onChange={updateTodo}
                   />
                   </Col>
@@ -99,6 +110,7 @@ function App() {
 
 
             <div>
+              <br />
               🥳 Welcome {userAttributes?.preferred_username}! Try creating a new todo.
               <br />
               <br />
