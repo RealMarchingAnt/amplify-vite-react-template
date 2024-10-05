@@ -7,8 +7,12 @@ interface TitleProps {
 
 const Title: React.FC<TitleProps> = ({ username }) => (
   <Row>
-    <Col md={12}>
+    <Col sm={12}>
       <h1>{username}'s todos</h1>
+    </Col>
+    <Col sm={12}>
+      <p>Manage your todos</p>
+      🥳 Welcome {username}! Try creating a new todo.
     </Col>
   </Row>
 );

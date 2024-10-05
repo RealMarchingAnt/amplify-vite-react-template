@@ -1,20 +1,28 @@
-import { Authenticator } from "@aws-amplify/ui-react";
+
+// Import the necessary libraries
 import '@aws-amplify/ui-react/styles.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 import { useEffect, useState } from "react";
-import type { Schema } from "../amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
 
+// Amplify components
+import { Authenticator } from "@aws-amplify/ui-react";
+import { generateClient } from "aws-amplify/data";
+import type { Schema } from "../amplify/data/resource";
 import { fetchUserAttributes } from 'aws-amplify/auth';
 
+// Bootstrap components
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Spinner from 'react-bootstrap/Spinner';
+
+// Custom components
 import Title from "./Title";
 import CreateTodo from "./CreateTodo";
+import NavBar from "./NavBar";
+import Footer from "./Footer";
 
 const client = generateClient<Schema>();
 
@@ -22,14 +30,25 @@ function App() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
   const [newTodo, setNewTodo] = useState<string>("");
   const [userAttributes, setUserAttributes] = useState<any>();
+  const [loading, setLoading] = useState<boolean>(true); // TODO test if this is necessary, because the userAttributes are fetched after the page is rendered
 
   useEffect(() => {
     client.models.Todo.observeQuery().subscribe({
       next: (data: any) => setTodos([...data.items]),
     });
+    // TODO fix the annoying flicker when the page is reloaded, because the userAttributes are fetched after the page is rendered
     fetchUserAttributes().then((data) => {
       setUserAttributes(data);
+      // setTimeout(() => {
+        setLoading(false);
+      // }, 1000);
     });
+
+    // Set a default username if the user is not logged in, after 1 second
+    // setTimeout(() => {
+    //   setUserAttributes({ preferred_username: "Guest" });
+    //   setLoading(false);
+    // }, 1000);
     
   }, []);
 
@@ -64,43 +83,51 @@ function App() {
 
   return (
     <Authenticator>
-      {({ signOut }) => (
+       {({ signOut = () => {} }) => (
           <main>
-              <Container>
-              <Form onSubmit={handleSubmit}>
-                <Title username={userAttributes?.preferred_username} />
-                <CreateTodo newTodo={newTodo} validateTodo={validateTodo} createTodo={createTodo} />
-              </Form>
-                <br />
-                {todos.map((todo) => (
-                  <Row key={todo.id} >
-                    <Col md={7}>{todo.content}</Col>
-                    <Col md={1}>
-                    <Form.Check // prettier-ignore
-                      type={'checkbox'}
-                      id={`${todo.id}`}
-                      label={`Done`}
-                      defaultChecked={todo.isDone? true: false}
-                      onChange={updateTodo}
-                    />
-                    </Col>
-                    <Col md={{ span: 2, offset: 2 }}>
-                      <Button variant="danger" onClick={() => deleteTodo(todo.id)}>Delete</Button>{' '}
-                    </Col>
-                  </Row>
-                ))}
+            {loading ? (
+              <Container fluid>
+                <div className="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center">
+                  <Spinner animation="border" role="status" >
+                    <span className="visually-hidden">Loading...</span>
+                  </Spinner>
+                </div>
               </Container>
-
-
-              <div>
-                <br />
-                🥳 Welcome {userAttributes?.preferred_username}! Try creating a new todsdfsdfo.
-                <br />
-                <br />
-              </div>
-              <Button onClick={signOut}>Sign out</Button>
+            ) : (
+              <>
+                <Container fluid>
+                  <NavBar username={userAttributes?.preferred_username} signOut={signOut} />
+                  <Form onSubmit={handleSubmit}>
+                    <Title username={userAttributes?.preferred_username} />
+                    <CreateTodo newTodo={newTodo} validateTodo={validateTodo} createTodo={createTodo} />
+                  </Form>
+                  <br />
+                  <Row>
+                    <Col sm={1}></Col>
+                    <Col><h4>Todo</h4></Col>
+                    <Col><h4>Action</h4></Col>
+                  </Row>
+                  {todos.map((todo) => (
+                    <Row key={todo.id} >
+                      <Col sm={1}>
+                        <Form.Check // prettier-ignore
+                          type={'checkbox'}
+                          id={`${todo.id}`}
+                          defaultChecked={todo.isDone? true: false}
+                          onChange={updateTodo}
+                        />
+                      </Col>
+                      <Col>{todo.content}</Col>
+                      <Col>
+                        <Button variant="danger" onClick={() => deleteTodo(todo.id)}>Delete</Button>{' '}
+                      </Col>
+                    </Row>
+                  ))}
+                  <Footer />
+                </Container>
+                </>
+            )}
           </main>
-
       )}
     </Authenticator>
   )
