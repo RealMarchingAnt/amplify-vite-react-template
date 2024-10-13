@@ -7,7 +7,7 @@ interface NavBarProps {
 }
 
 const NavBar: React.FC<NavBarProps> = ({ username, signOut }) => (
-  <Navbar bg="white" variant="light">
+  <Navbar bg="white" variant="light" fixed="top" expand="lg" className="w-100">
     <Navbar.Brand href="#home">
     <img
         src="/logo.svg"
@@ -16,6 +16,7 @@ const NavBar: React.FC<NavBarProps> = ({ username, signOut }) => (
         className="d-inline-block align-top"
         alt="Todos"
     />
+    <span className="ml-2">Todos</span>
     </Navbar.Brand>
     <Navbar.Collapse className="justify-content-end">
         <Nav className="mr-auto">

@@ -1,7 +1,7 @@
-
 // Import the necessary libraries
 import '@aws-amplify/ui-react/styles.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 import { useEffect, useState } from "react";
 
 // Amplify components
@@ -17,6 +17,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
+import Card from 'react-bootstrap/Card';
 
 // Custom components
 import Title from "./Title";
@@ -30,26 +31,16 @@ function App() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
   const [newTodo, setNewTodo] = useState<string>("");
   const [userAttributes, setUserAttributes] = useState<any>();
-  const [loading, setLoading] = useState<boolean>(true); // TODO test if this is necessary, because the userAttributes are fetched after the page is rendered
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     client.models.Todo.observeQuery().subscribe({
       next: (data: any) => setTodos([...data.items]),
     });
-    // TODO fix the annoying flicker when the page is reloaded, because the userAttributes are fetched after the page is rendered
     fetchUserAttributes().then((data) => {
       setUserAttributes(data);
-      // setTimeout(() => {
-        setLoading(false);
-      // }, 1000);
+      setLoading(false);
     });
-
-    // Set a default username if the user is not logged in, after 1 second
-    // setTimeout(() => {
-    //   setUserAttributes({ preferred_username: "Guest" });
-    //   setLoading(false);
-    // }, 1000);
-    
   }, []);
 
   function createTodo() {
@@ -59,12 +50,10 @@ function App() {
   }
 
   function validateTodo(e: React.ChangeEvent<HTMLInputElement>) {
-    // TODO do some basic validation
     setNewTodo(e.target.value);
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {''
-    // Prevent the browser from reloading the page
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     createTodo();
   }
@@ -73,7 +62,7 @@ function App() {
     client.models.Todo.delete({ id });
   }
 
-    async function updateTodo(e: React.ChangeEvent<HTMLInputElement>) {
+  async function updateTodo(e: React.ChangeEvent<HTMLInputElement>) {
     const todo = {
       id: e.target.id,
       isDone: e.target.checked
@@ -83,54 +72,57 @@ function App() {
 
   return (
     <Authenticator>
-       {({ signOut = () => {} }) => (
-          <main>
-            {loading ? (
-              <Container fluid>
-                <div className="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center">
-                  <Spinner animation="border" role="status" >
-                    <span className="visually-hidden">Loading...</span>
-                  </Spinner>
-                </div>
+      {({ signOut = () => {} }) => (
+        <main>
+          {loading ? (
+            <Container fluid>
+              <div className="position-absolute w-100 h-100 d-flex flex-column align-items-center bg-white justify-content-center">
+                <Spinner animation="border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </Spinner>
+              </div>
+            </Container>
+          ) : (
+            <>
+              <Container fluid className="p-3">
+                <NavBar username={userAttributes?.preferred_username} signOut={signOut} />
+                <Form onSubmit={handleSubmit} className="mb-4">
+                  <Title username={userAttributes?.preferred_username} />
+                  <CreateTodo newTodo={newTodo} validateTodo={validateTodo} createTodo={createTodo} />
+                </Form>
+                <Row className="mb-3 d-flex align-items-center">
+                  <Col sm={1}><h4>Done?</h4></Col>
+                  <Col sm={8}><h4>Todo</h4></Col>
+                  <Col sm={3}><h4>Action</h4></Col>
+                </Row>
+                {todos.map((todo) => (
+                  <Card key={todo.id} className="mb-3">
+                    <Card.Body>
+                      <Row className="d-flex align-items-center">
+                        <Col sm={1}>
+                          <Form.Check
+                            type={'checkbox'}
+                            id={`${todo.id}`}
+                            defaultChecked={todo.isDone ? true : false}
+                            onChange={updateTodo}
+                          />
+                        </Col>
+                        <Col sm={8}>{todo.content}</Col>
+                        <Col sm={3} className="text-end">
+                          <Button variant="danger" onClick={() => deleteTodo(todo.id)}>Delete</Button>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                  </Card>
+                ))}
+                <Footer />
               </Container>
-            ) : (
-              <>
-                <Container fluid>
-                  <NavBar username={userAttributes?.preferred_username} signOut={signOut} />
-                  <Form onSubmit={handleSubmit}>
-                    <Title username={userAttributes?.preferred_username} />
-                    <CreateTodo newTodo={newTodo} validateTodo={validateTodo} createTodo={createTodo} />
-                  </Form>
-                  <br />
-                  <Row>
-                    <Col sm={1}></Col>
-                    <Col><h4>Todo</h4></Col>
-                    <Col><h4>Action</h4></Col>
-                  </Row>
-                  {todos.map((todo) => (
-                    <Row key={todo.id} >
-                      <Col sm={1}>
-                        <Form.Check // prettier-ignore
-                          type={'checkbox'}
-                          id={`${todo.id}`}
-                          defaultChecked={todo.isDone? true: false}
-                          onChange={updateTodo}
-                        />
-                      </Col>
-                      <Col>{todo.content}</Col>
-                      <Col>
-                        <Button variant="danger" onClick={() => deleteTodo(todo.id)}>Delete</Button>{' '}
-                      </Col>
-                    </Row>
-                  ))}
-                  <Footer />
-                </Container>
-                </>
-            )}
-          </main>
+            </>
+          )}
+        </main>
       )}
     </Authenticator>
-  )
+  );
 }
 
 export default App;

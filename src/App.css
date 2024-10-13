@@ -35,8 +35,51 @@
 
 .card {
   padding: 2em;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .read-the-docs {
   color: #888;
+}
+
+/* App.css */
+body {
+  background-color: #f8f9fa;
+}
+
+main {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container-fluid {
+  flex: 1;
+}
+
+.card-body {
+  display: flex;
+  align-items: center;
+}
+
+.card-body .row {
+  width: 100%;
+}
+
+.navbar {
+  margin-bottom: 20px;
+  border-bottom: solid 1px #e5e5e5;
+}
+
+.footer {
+  margin-top: auto;
+  padding: 10px 0;
+  text-align: center;
+  background-color: #343a40;
+  color: white;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-top: solid 1px #e5e5e5;
 }
