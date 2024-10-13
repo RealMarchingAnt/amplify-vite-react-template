@@ -18,7 +18,7 @@ const CreateTodo: React.FC<CreateTodoProps> = ({ newTodo, validateTodo, createTo
           placeholder="Enter a new todo"
         />
         <Button variant="primary" onClick={createTodo}>
-          Add Todo
+          Add todo
         </Button>
       </InputGroup>
     </Col>

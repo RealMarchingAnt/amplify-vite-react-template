@@ -2,28 +2,21 @@
 import '@aws-amplify/ui-react/styles.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { Container, Form, Spinner } from 'react-bootstrap';
 
 // Amplify components
-import { Authenticator } from "@aws-amplify/ui-react";
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "../amplify/data/resource";
+import { Authenticator } from '@aws-amplify/ui-react';
+import { generateClient } from 'aws-amplify/data';
+import type { Schema } from '../amplify/data/resource';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 
-// Bootstrap components
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Spinner from 'react-bootstrap/Spinner';
-import Card from 'react-bootstrap/Card';
-
 // Custom components
-import Title from "./Title";
-import CreateTodo from "./CreateTodo";
-import NavBar from "./NavBar";
-import Footer from "./Footer";
+import Title from './Title';
+import CreateTodo from './CreateTodo';
+import NavBar from './NavBar';
+import Footer from './Footer';
+import TodoCard from './TodoCard'; // Import the new TodoCard component
 
 const client = generateClient<Schema>();
 
@@ -58,6 +51,13 @@ function App() {
     createTodo();
   }
 
+  function deleteTodoWithConfirmation(id: string) {
+    const confirmed = window.confirm("Are you sure you want to delete this todo?");
+    if (confirmed) {
+      deleteTodo(id);
+    }
+  }
+
   function deleteTodo(id: string) {
     client.models.Todo.delete({ id });
   }
@@ -90,30 +90,13 @@ function App() {
                   <Title username={userAttributes?.preferred_username} />
                   <CreateTodo newTodo={newTodo} validateTodo={validateTodo} createTodo={createTodo} />
                 </Form>
-                <Row className="mb-3 d-flex align-items-center">
-                  <Col sm={1}><h4>Done?</h4></Col>
-                  <Col sm={8}><h4>Todo</h4></Col>
-                  <Col sm={3}><h4>Action</h4></Col>
-                </Row>
                 {todos.map((todo) => (
-                  <Card key={todo.id} className="mb-3">
-                    <Card.Body>
-                      <Row className="d-flex align-items-center">
-                        <Col sm={1}>
-                          <Form.Check
-                            type={'checkbox'}
-                            id={`${todo.id}`}
-                            defaultChecked={todo.isDone ? true : false}
-                            onChange={updateTodo}
-                          />
-                        </Col>
-                        <Col sm={8}>{todo.content}</Col>
-                        <Col sm={3} className="text-end">
-                          <Button variant="danger" onClick={() => deleteTodo(todo.id)}>Delete</Button>
-                        </Col>
-                      </Row>
-                    </Card.Body>
-                  </Card>
+                    <TodoCard
+                      key={todo.id}
+                      todo={{ ...todo, isDone: todo.isDone ?? false }}
+                      updateTodo={updateTodo}
+                      deleteTodoWithConfirmation={deleteTodoWithConfirmation}
+                    />
                 ))}
                 <Footer />
               </Container>
